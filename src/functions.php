@@ -36,7 +36,7 @@ if (!function_exists('runWorker')) {
         }
 
         // report error when input is invalid NDJSON
-        $in->on('error', function (Exception $e) use ($out) {
+        $in->on('error', function (\Exception $e) use ($out) {
             $out->end(array(
                 'error' => array(
                     'code' => -32700, // parse error
@@ -70,7 +70,7 @@ if (!function_exists('runWorker')) {
                         'id' => $data->id,
                         'result' => true
                     ));
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     $out->write(array(
                         'id' => $data->id,
                         'error' => array('message' => $e->getMessage())
@@ -88,7 +88,7 @@ if (!function_exists('runWorker')) {
                         'id' => $data->id,
                         'result' => true
                     ));
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     $out->write(array(
                         'id' => $data->id,
                         'error' => array('message' => $e->getMessage())

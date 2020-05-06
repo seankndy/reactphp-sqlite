@@ -62,7 +62,7 @@ if (!function_exists('runWorker')) {
             if ($data->method === 'open' && \count($data->params) === 1 && \is_string($data->params[0])) {
                 // open database with one parameter: $filename
                 try {
-                    $db = new SQLite3(
+                    $db = new \SQLite3(
                         $data->params[0]
                     );
 
@@ -79,7 +79,7 @@ if (!function_exists('runWorker')) {
             } elseif ($data->method === 'open' && \count($data->params) === 2 && \is_string($data->params[0]) && \is_int($data->params[1])) {
                 // open database with two parameters: $filename, $flags
                 try {
-                    $db = new SQLite3(
+                    $db = new \SQLite3(
                         $data->params[0],
                         $data->params[1]
                     );

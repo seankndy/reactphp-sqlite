@@ -11,12 +11,12 @@ use React\Stream\ThroughStream;
 use React\Stream\WritableResourceStream;
 
 if (!function_exists('runWorker')) {
-    function runWorker() {
+    function runWorker($sockAddr = null) {
         $loop = Factory::create();
 
-        if (isset($_SERVER['argv'][1])) {
+        if ($sockAddr) {
             // socket address given, so try to connect through socket (Windows)
-            $socket = stream_socket_client($_SERVER['argv'][1]);
+            $socket = stream_socket_client($sockAddr);
             $stream = new DuplexResourceStream($socket, $loop);
 
             // pipe input through a wrapper stream so that an error on the input stream

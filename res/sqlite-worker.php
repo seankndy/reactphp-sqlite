@@ -19,4 +19,4 @@ if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
     require __DIR__ . '/../../../autoload.php';
 }
 
-Clue\React\SQLite\runWorker();
+Clue\React\SQLite\runWorker(isset($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : null);

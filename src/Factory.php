@@ -92,12 +92,14 @@ class Factory
      *
      * @param string $filename
      * @param ?int   $flags
+     * @param array  $options
      * @return PromiseInterface<DatabaseInterface> Resolves with DatabaseInterface instance or rejects with Exception
      */
-    public function open($filename, $flags = null)
+    public function open($filename, $flags = null, array $options = [])
     {
         $filename = $this->resolve($filename);
-        return $this->useSocket ? $this->openSocketIo($filename, $flags) : $this->openProcessIo($filename, $flags);
+        $workerCommand = isset($options['worker_command']) ? $options['worker_command'] : null;
+        return $this->useSocket ? $this->openSocketIo($filename, $flags, $workerCommand) : $this->openProcessIo($filename, $flags, $workerCommand);
     }
 
     /**
@@ -188,9 +190,15 @@ class Factory
         return new LazyDatabase($this->resolve($filename), $flags, $options, $this, $this->loop);
     }
 
-    private function openProcessIo($filename, $flags = null)
+    private function openProcessIo($filename, $flags = null, $workerCommand = null)
     {
-        $command = 'exec ' . \escapeshellarg($this->bin) . ' sqlite-worker.php';
+        if (!$workerCommand) {
+            $workerDirectory = __DIR__ . '/../res';
+            $workerCommand = 'sqlite-worker.php';
+        } else {
+            $workerDirectory = \dirname(\preg_split('/\s+/', $workerCommand)[0]);
+        }
+        $command = 'exec ' . \escapeshellarg($this->bin) . ' ' . $workerCommand;
 
         // Try to get list of all open FDs (Linux/Mac and others)
         $fds = @\scandir('/dev/fd');
@@ -232,7 +240,7 @@ class Factory
             $command = 'exec bash -c ' . \escapeshellarg($command);
         }
 
-        $process = new Process($command, __DIR__ . '/../res', null, $pipes);
+        $process = new Process($command, $workerDirectory, null, $pipes);
         $process->start($this->loop);
 
         $db = new ProcessIoDatabase($process);
@@ -249,9 +257,15 @@ class Factory
         });
     }
 
-    private function openSocketIo($filename, $flags = null)
+    private function openSocketIo($filename, $flags = null, $workerCommand = null)
     {
-        $command = \escapeshellarg($this->bin) . ' sqlite-worker.php';
+        if (!$workerCommand) {
+            $workerDirectory = __DIR__ . '/../res';
+            $workerCommand = 'sqlite-worker.php';
+        } else {
+            $workerDirectory = \dirname(\preg_split('/\s+/', $workerCommand)[0]);
+        }
+        $command = \escapeshellarg($this->bin) . ' ' . $workerCommand;
 
         // launch process without default STDIO pipes, but inherit STDERR
         $null = \DIRECTORY_SEPARATOR === '\\' ? 'nul' : '/dev/null';
@@ -273,7 +287,7 @@ class Factory
         stream_set_blocking($server, false);
         $command .= ' ' . stream_socket_get_name($server, false);
 
-        $process = new Process($command, __DIR__ . '/../res', null, $pipes);
+        $process = new Process($command, $workerDirectory, null, $pipes);
         $process->start($this->loop);
 
         $deferred = new Deferred(function () use ($process, $server) {

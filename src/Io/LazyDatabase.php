@@ -27,6 +27,7 @@ class LazyDatabase extends EventEmitter implements DatabaseInterface
     /** @var ?\React\EventLoop\TimerInterface */
     private $idleTimer;
     private $pending = 0;
+    private $workerCommand = null;
 
     public function __construct($target, $flags, array $options, Factory $factory, LoopInterface $loop)
     {
@@ -37,6 +38,9 @@ class LazyDatabase extends EventEmitter implements DatabaseInterface
 
         if (isset($options['idle'])) {
             $this->idlePeriod = (float)$options['idle'];
+        }
+        if (isset($options['worker_command'])) {
+            $this->workerCommand = $options['worker_command'];
         }
     }
 
@@ -59,7 +63,7 @@ class LazyDatabase extends EventEmitter implements DatabaseInterface
             $this->disconnecting = null;
         }
 
-        $this->promise = $promise = $this->factory->open($this->filename, $this->flags);
+        $this->promise = $promise = $this->factory->open($this->filename, $this->flags, $this->workerCommand);
         $promise->then(function (DatabaseInterface $db) {
             // connection completed => remember only until closed
             $db->on('close', function () {

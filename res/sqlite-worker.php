@@ -11,14 +11,6 @@
 // $ nc localhost 8080
 // $ php res/sqlite-worker.php localhost:8080
 
-use Clue\React\NDJson\Decoder;
-use Clue\React\NDJson\Encoder;
-use React\EventLoop\Factory;
-use React\Stream\DuplexResourceStream;
-use React\Stream\ReadableResourceStream;
-use React\Stream\ThroughStream;
-use React\Stream\WritableResourceStream;
-
 if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
     // local project development, go from /res to /vendor
     require __DIR__ . '/../vendor/autoload.php';

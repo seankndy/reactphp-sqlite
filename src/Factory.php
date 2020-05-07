@@ -196,7 +196,7 @@ class Factory
             $workerDirectory = __DIR__ . '/../res';
             $workerCommand = 'sqlite-worker.php';
         } else {
-            $workerDirectory = \dirname(\preg_split('/\s+/', $workerCommand)[0]);
+            $workerDirectory = \dirname(\preg_split('/(?<!\\\\)\s+/', $workerCommand)[0]);
         }
         $command = 'exec ' . \escapeshellarg($this->bin) . ' ' . $workerCommand;
 
@@ -263,7 +263,7 @@ class Factory
             $workerDirectory = __DIR__ . '/../res';
             $workerCommand = 'sqlite-worker.php';
         } else {
-            $workerDirectory = \dirname(\preg_split('/\s+/', $workerCommand)[0]);
+            $workerDirectory = \dirname(\preg_split('/(?<!\\\\)\s+/', $workerCommand)[0]);
         }
         $command = \escapeshellarg($this->bin) . ' ' . $workerCommand;
 
